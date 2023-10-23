@@ -35,7 +35,7 @@ export async function initServer(){
     app.use("/graphql",expressMiddleware(graphqlServer,{
         context:async({req,res})=>{
             return{
-                user:req.headers.authorization?JWTService.decodeToken(req.headers.authorization):undefined,
+                user:req.headers.authorization?JWTService.decodeToken(req.headers.authorization.split('Bearer ')[1]):undefined,
             };
         },
         })

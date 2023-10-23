@@ -2,6 +2,7 @@ import axios from 'axios'
 import { prismaClient } from '../../clients/db';
 import JWTService from '../../services/jwt';
 import jwt from 'jsonwebtoken';
+import { GraphqlContext } from '../../interfaces';
 // import { prismaClient } from '../../clients/db';
 interface GoogleTokenResult{
     iss?: string;
@@ -54,6 +55,13 @@ const queries = {
         const userToken = JWTService.generateTokenForUser(userInDb);
         return userToken;
     },
+    getCurrentUser:async(parent:any,args:any,ctx:GraphqlContext)=>{
+        // return ctx.user;
+        console.log(ctx);
+        const id= ctx.user?.id;
+        if(!id) return null;
+    },
 };
+
 
 export const resolvers={queries};

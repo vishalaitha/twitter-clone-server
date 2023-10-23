@@ -26,6 +26,7 @@ const queries = {
         });
         const user = yield db_1.prismaClient.user.findUnique({
             where: { email: data.email },
+            where: { email: data.email },
         });
         if (!user) {
             yield db_1.prismaClient.user.create({
@@ -42,6 +43,14 @@ const queries = {
             throw new Error("user with email not found");
         const userToken = jwt_1.default.generateTokenForUser(userInDb);
         return userToken;
+    }),
+    getCurrentUser: (parent, args, ctx) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        // return ctx.user;
+        console.log(ctx);
+        const id = (_a = ctx.user) === null || _a === void 0 ? void 0 : _a.id;
+        if (!id)
+            return null;
     }),
 };
 exports.resolvers = { queries };

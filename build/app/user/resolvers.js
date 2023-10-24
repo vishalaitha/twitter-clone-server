@@ -19,7 +19,7 @@ const jwt_1 = __importDefault(require("../../services/jwt"));
 const queries = {
     verifyGoogleToken: (parent, { token }) => __awaiter(void 0, void 0, void 0, function* () {
         const googleToken = token;
-        const googleOauthURL = new URL('https://oauth2.googleapis.com/tokeninfo');
+        const googleOauthURL = new URL("https://oauth2.googleapis.com/tokeninfo");
         googleOauthURL.searchParams.set("id_token", googleToken);
         const { data } = yield axios_1.default.get(googleOauthURL.toString(), {
             responseType: "json",
@@ -37,7 +37,9 @@ const queries = {
                 },
             });
         }
-        const userInDb = yield db_1.prismaClient.user.findUnique({ where: { email: data.email }, });
+        const userInDb = yield db_1.prismaClient.user.findUnique({
+            where: { email: data.email },
+        });
         if (!userInDb)
             throw new Error("user with email not found");
         const userToken = jwt_1.default.generateTokenForUser(userInDb);
@@ -53,10 +55,11 @@ const queries = {
         const user = yield db_1.prismaClient.user.findUnique({ where: { id } });
         return user;
     }),
+    getUserById: (parent, { id }, ctx) => __awaiter(void 0, void 0, void 0, function* () { return db_1.prismaClient.user.findUnique({ where: { id } }); }),
 };
 const extraResolvers = {
     User: {
-        tweets: (parent) => db_1.prismaClient.tweet.findMany({ where: { author: { id: parent.id } } })
-    }
+        tweets: (parent) => db_1.prismaClient.tweet.findMany({ where: { author: { id: parent.id } } }),
+    },
 };
 exports.resolvers = { queries, extraResolvers };

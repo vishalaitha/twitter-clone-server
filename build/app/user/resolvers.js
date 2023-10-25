@@ -34,6 +34,63 @@ const queries = {
 const extraResolvers = {
     User: {
         tweets: (parent) => db_1.prismaClient.tweet.findMany({ where: { author: { id: parent.id } } }),
+        followers: (parent) => __awaiter(void 0, void 0, void 0, function* () {
+            const result = yield db_1.prismaClient.follows.findMany({
+                where: { following: { id: parent.id } },
+                include: {
+                    follower: true,
+                },
+            });
+            return result.map((el) => el.follower);
+        }),
+        following: (parent) => __awaiter(void 0, void 0, void 0, function* () {
+            const result = yield db_1.prismaClient.follows.findMany({
+                where: { follower: { id: parent.id } },
+                include: {
+                    following: true,
+                },
+            });
+            return result.map((el) => el.following);
+        }),
+        recommendedUsers: (parent, _, ctx) => __awaiter(void 0, void 0, void 0, function* () {
+            if (!ctx.user)
+                return [];
+            const myFollowings = yield db_1.prismaClient.follows.findMany({
+                where: {
+                    follower: { id: ctx.user.id },
+                },
+                include: {
+                    following: {
+                        include: {
+                            followers: { include: { following: true } },
+                        },
+                    },
+                },
+            });
+            const users = [];
+            for (const followings of myFollowings) {
+                for (const followingOfFollwedUser of followings.following.followers) {
+                    if (followingOfFollwedUser.following.id !== ctx.user.id && myFollowings.findIndex(e => (e === null || e === void 0 ? void 0 : e.followingId) === followingOfFollwedUser.following.id) < 0) {
+                        users.push(followingOfFollwedUser.following);
+                    }
+                }
+            }
+            return users;
+        }),
     },
 };
-exports.resolvers = { queries, extraResolvers };
+const mutations = {
+    followUser: (parent, { to }, ctx) => __awaiter(void 0, void 0, void 0, function* () {
+        if (!ctx.user || !ctx.user.id)
+            throw new Error("Unauthenticated");
+        yield user_1.default.followUser(ctx.user.id, to);
+        return true;
+    }),
+    unfollowUser: (parent, { to }, ctx) => __awaiter(void 0, void 0, void 0, function* () {
+        if (!ctx.user || !ctx.user.id)
+            throw new Error("Unauthenticated");
+        yield user_1.default.unfollowUser(ctx.user.id, to);
+        return true;
+    }),
+};
+exports.resolvers = { queries, extraResolvers, mutations };

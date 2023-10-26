@@ -12,15 +12,7 @@ class TweetService {
     const rateLimitFlag = await redisClient.get(
       `RATE_LIMIT:TWEET:${data.userId}`
     );
-    try{
-        if (rateLimitFlag) {
-          // Should implement this later
-          throw new Error("Please wait for 5 seconds and reload the page.................................................................................................................................................................................................................................................");
-        }
-    }
-    catch(error){
-        console.log("you're exceeding the limit")
-    }
+    if (rateLimitFlag) throw new Error("Please wait....");
     const tweet = await prismaClient.tweet.create({
       data: {
         content: data.content,
@@ -28,7 +20,7 @@ class TweetService {
         author: { connect: { id: data.userId } },
       },
     });
-    await redisClient.setex(`RATE_LIMIT:TWEET:${data.userId}`, 10, 4);
+    await redisClient.setex(`RATE_LIMIT:TWEET:${data.userId}`, 10, 1);
     await redisClient.del("ALL_TWEETS");
     return tweet;
   }

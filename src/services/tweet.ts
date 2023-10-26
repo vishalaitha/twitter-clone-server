@@ -36,5 +36,4 @@ class TweetService {
     return tweets;
   }
 }
-
 export default TweetService;

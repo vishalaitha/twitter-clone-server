@@ -54,23 +54,22 @@ class UserService {
     const userToken = JWTService.generateTokenForUser(userInDb);
     return userToken;
   }
-  public static getUserById(id:string){
-    return prismaClient.user.findUnique({where:{id}})
+  public static getUserById(id: string) {
+    
+    return prismaClient.user.findUnique({ where: { id } });
   }
-  public static followUser(from:string,to:string){
-    return prismaClient.follows.create(
-      {
-        data:{
-          follower:{connect:{id:from}},
-          following:{connect:{id:to}},
-        }
-      }
-    )
+  public static followUser(from: string, to: string) {
+    return prismaClient.follows.create({
+      data: {
+        follower: { connect: { id: from } },
+        following: { connect: { id: to } },
+      },
+    });
   }
-  public static unfollowUser(from:string,to:string){
+  public static unfollowUser(from: string, to: string) {
     return prismaClient.follows.delete({
-      where:{followerId_followingId:{followerId:from,followingId:to}}
-    })
+      where: { followerId_followingId: { followerId: from, followingId: to } },
+    });
   }
 }
 
